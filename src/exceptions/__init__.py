@@ -28,3 +28,12 @@ class AlreadyRegistered(HTTPException):
         super().__init__(description, response)
         self.code = 400
         self.description = f"Ya existe un registro para {email}"
+
+
+class NotRegistered(HTTPException):
+    code=404
+    description="El usuario no está registrado"
+
+
+class APIError(HTTPException):
+    code = 400

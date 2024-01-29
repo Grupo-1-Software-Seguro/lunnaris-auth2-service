@@ -3,9 +3,8 @@ import os
 from routes import AuthRoutes
 from dotenv import load_dotenv
 from mongoengine import connect
-from flask_jwt_extended import JWTManager
-from werkzeug.exceptions import HTTPException
 import exceptions
+from provider import Provider
 from utils import exception_to_json
 
 
@@ -16,9 +15,17 @@ connect(db=os.getenv("MONGO_DB"), host=os.getenv("MONGO_URI"))
 app = Flask("Auth service")
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False
+app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER")
+app.config['MAIL_PORT'] = int(os.getenv("MAIL_PORT"))
+app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
+app.config['MAIL_USE_TLS'] = os.getenv("MAIL_USE_TLS").lower() == "true"
+app.config['MAIL_USE_SSL'] = os.getenv("MAIL_USE_SSL").lower() == "true"
 
-app.register_blueprint(AuthRoutes, url_prefix="/api/auth")
-jwt = JWTManager(app)
+provider = Provider()
+provider.init_app(app)
+
+jwt = provider.jwt
 
 @jwt.unauthorized_loader
 def unauthorized_response(callback):
@@ -34,7 +41,7 @@ def verification_failed():
 def handle_error(e):
     return exception_to_json(e)
 
-
+app.register_blueprint(AuthRoutes, url_prefix="/api/auth")
 
 if __name__ == "__main__":
     app.run(debug=True, port=5020)

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * {
+            font-family: Helvetica, Tahoma, sans-serif;
+        }
+
+        div {
+            padding: 0;
+            margin: 0;
+        }
+
+        .panel {
+            text-align: center;
+        }
+
+        hr {
+            width: 100%;
+            background-color: lightgray;
+            border: none;
+            height: 1px;
+            margin: 10px 0;
+        }
+
+        .link {
+            background: rgb(235, 235, 235);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .button {
+            background-color: #57CF2C;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: white !important;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="panel">
+        <h1>Cambio de contraseña</h1>
+        <hr>
+        <h2>Hola {{ username }}</h2>
+        <p>Te estamos enviando este correo porque solicitaste un cambio de contraseña. Haz clic en el siguiente link 
+            para realizar el cambio.</p>
+        <a href="{{ reset_link }}" class="button">Cambio de contraseña</a><br><br>
+        <span>Si el botón no funciona, copia el siguiente link</span><br>
+        <p class="link">{{ reset_link }}</p>
+        <p>Si tú no solicitaste este cambio, puedes ignorar este mensaje. Tu contraseña permanecerá intacta</p>
+        <hr>
+        <footer>
+            Lunnaris - 2024
+        </footer>
+    </div>
+</body>
+</html>

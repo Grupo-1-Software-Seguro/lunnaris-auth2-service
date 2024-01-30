@@ -2,9 +2,9 @@ from flask import render_template
 from flask_mail import Mail, Message
 import os
 
+from .interface import MailService
 
-class MailService:
-    mail: Mail
+class FlaskMailService(MailService):
 
     def __init__(self, mail: Mail) -> None:
         self.mail = mail

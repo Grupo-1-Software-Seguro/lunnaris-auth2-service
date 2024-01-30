@@ -48,6 +48,9 @@ class Provider(metaclass=ProviderMeta):
 def use_service(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        
         kwargs["service"] = Provider().get_service()
         return f(*args, **kwargs)
     return decorated_function
+
+

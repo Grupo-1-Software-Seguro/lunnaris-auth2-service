@@ -3,7 +3,7 @@ from flask_pydantic import validate
 from flask_jwt_extended import jwt_required
 from utils import extract_token
 from model.dto import *
-from service import *
+from service2 import *
 from provider import Provider
 
 

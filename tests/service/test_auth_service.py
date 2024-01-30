@@ -1,59 +1,66 @@
-from service.auth import *
+from services.implementation.auth_service import AuthService
+from dto.requests import LoginRequest
+from entities.auth_registry import AuthRegistry
 from unittest.mock import Mock
-from bcrypt import checkpw
+from utils.password import hash_password
+from exceptions import InvalidCredentials
 import pytest
 
-
-def test_register_new_user():
-    mock_dao = Mock()
-    mock_dao.get_by_email.return_value = None
-    mock_dao.save.return_value = None
-
-    service = AuthService(mock_dao, None, None, None)
-    body = AuthModel(userId="1", password="Test2024@", email="mail@mail.com")
-
-    result = service.register(body)
-    created_user = mock_dao.save.call_args.args[0]
-    mock_dao.get_by_email.assert_called_with("mail@mail.com")
-    assert result
-    assert created_user.email == "mail@mail.com"
-    assert checkpw("Test2024@".encode("utf-8"), created_user.password.encode("utf-8"))
-
-
-def test_register_user_with_existing_email():
-    mock_dao = Mock()
-    mock_dao.get_by_email.return_value = UserAuth()
-
-    service = AuthService(mock_dao, None, None, None)
-    body = AuthModel(userId="1", password="Test2024@", email="mail@mail.com")
-
-    with pytest.raises(AlreadyRegistered):
-        service.register(body)
-
-
-
-@pytest.fixture
-def function_mock(mocker):
-    mock = Mock()
-    mocker.patch('service.AuthService.check_password', return_value=mock)
-    return mock
-
-def gen_password(passw):
-    return bcrypt.hashpw(passw.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+# Login
 
 def test_login():
-    login = LoginModel(password="Test2024@",email="mail@mail.com")
     mock = Mock()
-    mock.get_by_email.return_value = UserAuth(
-        email=login.email,
-        password=gen_password(login.password)
+    mock.get_by_email.return_value = AuthRegistry(
+        userId="1",
+        email="correo1@email.com",
+        password=hash_password("12345")
     )
 
+    mock.create_token.return_value = "un_token"
 
-    service = AuthService(mock, None, None, None)
-    response = service.login(login)
+    auth_service = AuthService(
+        dao=mock,
+        token_generator=mock
+    )
 
-    assert response is not None
+    response = auth_service.login(LoginRequest(email="correo1@email.com", password="12345"))
+    mock.get_by_email.assert_called_with("correo1@email.com")
+    assert response.token == "un_token"
+
+def test_login_non_existing_user():
+    mock = Mock()
+    mock.get_by_email.return_value = None
+
+    auth_service = AuthService(
+        dao=mock,
+        token_generator=mock
+    )
+
+    with pytest.raises(InvalidCredentials):
+        auth_service.login(LoginRequest(email="correo1@email.com", password="1234"))
+
+    mock.get_by_email.assert_called_with("correo1@email.com")
+
+
+def test_login_wrong_password():
+    mock = Mock()
+    mock.get_by_email.return_value = AuthRegistry(
+        userId="1",
+        email="correo1@email.com",
+        password=hash_password("12345")
+    )
+
+    auth_service = AuthService(
+        dao=mock,
+        token_generator=mock
+    )
+
+    with pytest.raises(InvalidCredentials):
+        auth_service.login(LoginRequest(email="correo1@email.com", password="1234"))
+
+    mock.get_by_email.assert_called_with("correo1@email.com")
+
+    
 
     
     

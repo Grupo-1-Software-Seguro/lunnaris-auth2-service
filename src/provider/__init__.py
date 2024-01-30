@@ -1,7 +1,7 @@
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_mail import Mail
-from service import *
+from service2 import *
 from functools import wraps
 
 

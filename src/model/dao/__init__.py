@@ -16,16 +16,3 @@ class AuthDAO(ABC):
     @abstractmethod
     def save(self, auth: UserAuth) -> UserAuth:
         pass
-
-
-class MongoAuthDAO(AuthDAO):
-
-    def get_by_email(self, email: str) -> UserAuth:
-        return UserAuth.objects(email=email).first()
-
-    def get_by_id(self, id: str) -> UserAuth:
-        return UserAuth.objects(userId=id).first()
-    
-    def save(self, auth: UserAuth) -> UserAuth:
-        auth.save()
-        return auth

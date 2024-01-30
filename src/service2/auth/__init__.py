@@ -1,12 +1,12 @@
 from model.dto import *
 from model.dao import *
 from model import *
-from service.mail.interface import MailService
+from service2.mail.interface import MailService
 import bcrypt
 from utils import create_recover_token, validate_recover_token, exception_on_value
 from exceptions import *
 from api import UserAPI
-from service.tokens.interface import TokenService
+from service2.tokens.interface import TokenService
 
 
 class AuthService:

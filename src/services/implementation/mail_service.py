@@ -1,16 +1,15 @@
-from flask import render_template
-from flask_mail import Mail, Message
 import os
+from flask import render_template
+from services.mail_service_interface import IMailService
+from flask_mail import Mail, Message
 
-from .interface import MailService
-
-class FlaskMailService(MailService):
+class FlaskMailService(IMailService):
 
     def __init__(self, mail: Mail) -> None:
+        super().__init__()
         self.mail = mail
-        
-    def send_password_recover_mail(self, username: str, email: str, token):
-        
+    
+    def send_reset_password_email(self, username: str, email: str, token: str):
         reset_link = os.getenv("RECOVER_URL") + token
     
         msg_body = render_template("mail_body.html", username=username, reset_link=reset_link)
@@ -21,6 +20,4 @@ class FlaskMailService(MailService):
             recipients=[email]
         )
         msg.html = msg_body
-        print("previo de enviar el email")
         self.mail.send(msg)
-        

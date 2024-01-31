@@ -1,17 +1,21 @@
 from services.auth_service_interface import IAuthService
 from dto.requests import LoginRequest, NewPasswordRequest, RegisterUserRequest, ResetPasswordRequest
 from dto.responses import LoginTokenResponse, NewPasswordResponse, RegisterUserResponse, ResetPasswordResponse
-from dao.interface import IAuthDAO, AuthRegistry
+from dao.interface import IAuthDAO
+from entities.auth_registry import AuthRegistry
+from services.token_service_interface import ITokenGenerator
+from services.mail_service_interface import IMailService
 from exceptions import *
 from utils import exception_on_value
 from utils.password import check_password, hash_password
 
 class AuthService(IAuthService):
 
-    def __init__(self, dao: IAuthDAO, token_generator) -> None:
+    def __init__(self, dao: IAuthDAO, token_generator: ITokenGenerator, mail: IMailService) -> None:
         super().__init__()
         self.dao = dao
         self.token_generator = token_generator
+        self.mail = mail
     
     def login(self, login_request: LoginRequest) -> LoginTokenResponse:
         auth_registry = exception_on_value(
@@ -41,7 +45,24 @@ class AuthService(IAuthService):
         )
     
     def request_password_reset(self, password_reset_request: ResetPasswordRequest) -> ResetPasswordResponse:
-        return super().request_password_reset(password_reset_request)
+        auth_registry = self.dao.get_by_email(password_reset_request.email)
+        
+        if not auth_registry:
+            raise NotRegistered
+        
+        token = self.token_generator.create_token(auth_registry.userId, 10)
+        self.mail.send_reset_password_email("", password_reset_request.email, token)
+        return ResetPasswordResponse(token=token)
     
     def set_new_password(self, new_password_request: NewPasswordRequest) -> NewPasswordResponse:
-        return super().set_new_password(new_password_request)
+        payload = self.token_generator.read_token(new_password_request.token)
+        if not payload:
+            raise InvalidToken
+        
+        auth_registry = self.dao.get_by_user_id(payload["id"])
+        auth_registry.password = hash_password(new_password_request.password)
+
+
+        return NewPasswordResponse(
+            password_changed=self.dao.update(auth_registry)
+        )

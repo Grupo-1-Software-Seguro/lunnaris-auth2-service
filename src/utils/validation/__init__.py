@@ -18,7 +18,7 @@ class Validator:
 
 class BodyValidator(Validator):
     
-    def create_model(class_: BaseModel):
+    def create_model(self, class_: BaseModel):
         content_type = request.headers.get("Content-Type")
         if content_type:
             if "application/json" in content_type:

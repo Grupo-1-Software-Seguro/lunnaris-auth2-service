@@ -13,3 +13,7 @@ class IAuthDAO(ABC):
     @abstractmethod
     def save(self, auth_registry: AuthRegistry) -> bool:
         pass
+
+    @abstractmethod
+    def update(self, auth_registry: AuthRegistry) -> bool:
+        pass

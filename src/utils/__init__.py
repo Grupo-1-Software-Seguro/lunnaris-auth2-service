@@ -1,5 +1,5 @@
 from werkzeug.exceptions import HTTPException
-from model.dto import ApiResponse
+from dto.responses import ApiResponse
 import datetime
 import os
 import jwt

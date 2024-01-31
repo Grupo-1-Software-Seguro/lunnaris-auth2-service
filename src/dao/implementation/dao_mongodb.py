@@ -6,6 +6,7 @@ class DBAuthRegistry(Document):
     userId = StringField(required=True)
     email = StringField(required=True, unique=True)
     password = StringField(required=True)
+    meta = {'collection': 'user_auth'}
 
 
 class MongoAuthDAO(IAuthDAO):
@@ -38,4 +39,12 @@ class MongoAuthDAO(IAuthDAO):
         )
         obj.save()
         return True
+    
+    def update(self, auth_registry: AuthRegistry) -> bool:
+        obj: DBAuthRegistry = DBAuthRegistry.objects(userId=auth_registry.userId).first()
+        if not obj:
+            return False
+
+        count = obj.update(email=auth_registry.email, password=auth_registry.password)
+        return count > 0
         

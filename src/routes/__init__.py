@@ -1,43 +1,38 @@
 from flask import Blueprint, request
-from flask_pydantic import validate
-from flask_jwt_extended import jwt_required
-from utils import extract_token
-from model.dto import *
-from service2 import *
-from provider import Provider
-
+from provider import use_service
+from services.auth_service_interface import IAuthService
+from dto.requests import *
+from dto.responses import *
+from utils.validation import validate_with_models
 
 AuthRoutes = Blueprint("auth", __name__)
 
-def service():
-    return Provider().get_service()
 
 @AuthRoutes.post("/register")
-@validate()
-def register(body: AuthModel):
-    res = service().register(body)
-    response = {
-        "registered": res
-    }
-    return ApiResponse(type="object", body=response)
+@validate_with_models()
+@use_service
+def register(body: RegisterUserRequest, service: IAuthService):
+    res = service.register_user(body)
+    return res.model_dump()
 
 @AuthRoutes.post("/login")
-@validate(body=LoginModel)
-def login(body: LoginModel, other: str=""):
-    return ApiResponse(type="object", body=service().login(body))
+@validate_with_models()
+@use_service
+def login(body: LoginRequest, service: IAuthService):
+    return service.login(body).model_dump()
 
 
 @AuthRoutes.post("/reset_password")
-@validate()
-def request_reset_password(body: EmailRequest):
-    service().user_api.token = extract_token(request)
-    response = service().request_reset_password(body)
-    return ApiResponse(type="object", body=response)
+@validate_with_models()
+@use_service
+def request_reset_password(body: ResetPasswordRequest, service: IAuthService):
+    response = service.request_password_reset(body)
+    return response.model_dump()
 
 
 @AuthRoutes.put("/reset_password")
-@validate()
-def reset_password(body: PasswordChangeRequest):
-    service().user_api.token = extract_token(request)
-    response = service().reset_password(body)
-    return ApiResponse(type="object", body=response)
+@validate_with_models()
+@use_service
+def reset_password(body: NewPasswordRequest, service: IAuthService):
+    response = service.set_new_password(body)
+    return response.model_dump()

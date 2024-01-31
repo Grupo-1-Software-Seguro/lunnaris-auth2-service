@@ -4,7 +4,7 @@ from routes import AuthRoutes
 from dotenv import load_dotenv
 from mongoengine import connect
 import exceptions
-from provider import Provider
+from provider import ServiceProvider
 from utils import exception_to_json
 
 
@@ -22,11 +22,10 @@ app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
 app.config['MAIL_USE_TLS'] = os.getenv("MAIL_USE_TLS").lower() == "true"
 app.config['MAIL_USE_SSL'] = os.getenv("MAIL_USE_SSL").lower() == "true"
 
-provider = Provider()
+provider = ServiceProvider()
 provider.init_app(app)
 
-jwt = provider.jwt
-
+"""
 @jwt.unauthorized_loader
 def unauthorized_response(callback):
     return exception_to_json(exceptions.NotAuthorized())
@@ -35,7 +34,7 @@ def unauthorized_response(callback):
 @jwt.token_verification_failed_loader
 def verification_failed():
     raise exceptions.InvalidToken
-
+"""
 
 @app.errorhandler(Exception)
 def handle_error(e):

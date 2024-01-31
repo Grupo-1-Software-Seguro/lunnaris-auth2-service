@@ -1,9 +1,13 @@
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_mail import Mail
-from service2 import *
 from functools import wraps
-
+from services.implementation.auth_service import AuthService
+from services.auth_service_interface import IAuthService
+from services.implementation.mail_service import FlaskMailService
+from services.implementation.token_service import TokenGenerator
+from dao.implementation.dao_mongodb import MongoAuthDAO
+import inspect
 
 class ProviderMeta(type):
 
@@ -21,7 +25,7 @@ class ProviderMeta(type):
 
 
 
-class Provider(metaclass=ProviderMeta):
+class ServiceProvider(metaclass=ProviderMeta):
 
     def __init__(self) -> None:
         self.mail = None
@@ -32,14 +36,14 @@ class Provider(metaclass=ProviderMeta):
     def init_app(self, app):
         self.mail = Mail(app)
         self.cors = CORS(app, origins="*")
-        self.jwt = JWTManager(app)
+        #self.jwt = JWTManager(app)
 
     def get_service(self):
         if not self.service:
             self.service = AuthService(
-                AuthDAO(),
-                MailService(self.mail),
-                UserAPI()
+                dao=MongoAuthDAO(),
+                mail=FlaskMailService(self.mail),
+                token_generator=TokenGenerator()
             )
 
         return self.service
@@ -48,8 +52,12 @@ class Provider(metaclass=ProviderMeta):
 def use_service(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        
-        kwargs["service"] = Provider().get_service()
+        parameters = inspect.signature(f).parameters
+        for param in parameters.values():
+            if param.annotation == IAuthService:
+                kwargs[param.name] = ServiceProvider().get_service()
+                break
+            
         return f(*args, **kwargs)
     return decorated_function
 

@@ -1,3 +1,4 @@
+from typing import Any
 from pydantic import BaseModel
 
 
@@ -15,3 +16,8 @@ class NewPasswordResponse(BaseModel):
 
 class RegisterUserResponse(BaseModel):
     state: bool
+
+
+class ApiResponse(BaseModel):
+    type: str
+    body: Any

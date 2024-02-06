@@ -44,7 +44,27 @@ class QueryValidator(Validator):
         return parsed_args
     
 
-def validate_with_models(body=None, query=None):
+def process_single(response):
+    if isinstance(response, BaseModel):
+        return response.model_dump()
+    else:
+        return response
+
+
+def process_list(response_as_list):
+    return [process_single(response) for response in response_as_list]
+
+def process_response(response):
+    if isinstance(response, list):
+        return process_list(response)
+    elif isinstance(response, tuple) and len(response) == 2:
+        raw_response, status = response
+        return process_response(raw_response), status
+    else:
+        return process_single(response)
+    
+
+def validate_with_models(body=None, query=None, validate_response=True):
     def super_function(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
@@ -55,9 +75,11 @@ def validate_with_models(body=None, query=None):
             # Check if query exists
             if "query" in parameters:
                 QueryValidator().validate(parameters["query"], query, kwargs)
-
-            return f(*args, **kwargs)
+            if validate_response:
+                response = f(*args, **kwargs)
+                return process_response(response)
+            else:
+                return f(*args, **kwargs)
+            
         return decorated_function
     return super_function
-
-

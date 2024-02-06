@@ -12,7 +12,7 @@ class FlaskMailService(IMailService):
     def send_reset_password_email(self, username: str, email: str, token: str):
         reset_link = os.getenv("RECOVER_URL") + token
     
-        msg_body = render_template("mail_body.html", username=username, reset_link=reset_link)
+        msg_body = render_template("mail2.html", username=username, reset_link=reset_link)
         
         msg = Message(
             subject="Cambio de contraseña - Lunnaris",

@@ -1,0 +1,22 @@
+<style>
+    html {
+        background: #ECF0F1;
+    }
+</style>
+<body style="height: 100%;  width: 100%; background-color: #ECF0F1; text-align: center; font-family: sans-serif;">
+    <h1 style="padding: 20px; text-align: center;">Cambio de contraseña</h1>
+    <div style="max-width: 500px; border-radius: 5px; background: white; display: block; margin: auto; padding: 20px; width: fit-content;">
+        <h2>Hola {{ username }}, recibimos una<br>
+            solicitud para cambiar la contraseña<br>
+            de la cuenta asociada a este correo</h2>
+        <a href="{{ reset_link }}" style="display: block; background-color: #2CCF78; padding: 15px; border-radius: 5px; text-decoration: none; color: white !important; margin: 20px;">
+            Clic aquí para cambiar tu contraseña</a>
+        <p style="margin-top: 20px">Si el botón no aparece o no funciona, ingresa al siguiente enlace:</p>
+        <p style="display: block; margin: auto; max-width: 80%; word-break: break-all; text-align: center">{{ reset_link }}</p>
+        <p>Si fue una equivocación, puedes ignorar este mensaje<br>
+            y tu cuenta quedará intacta.</p>
+    </div>
+    <p style="text-align: center; margin: 20px; display: block;">
+        Copyright 2024 - <strong>Lunnaris</strong>
+    </p>
+</body>

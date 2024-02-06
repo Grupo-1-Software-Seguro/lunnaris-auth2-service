@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 class LoginTokenResponse(BaseModel):
     token: str
+    id: str
 
 
 class ResetPasswordResponse(BaseModel):

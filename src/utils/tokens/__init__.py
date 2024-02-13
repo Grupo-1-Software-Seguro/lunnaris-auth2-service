@@ -3,8 +3,10 @@ import os
 
 HASH = "HS256"
 
+
 def create_token(payload: dict) -> str:
     return jwt.encode(payload, os.getenv("JWT_SECRET_KEY"), algorithm=HASH)
+
 
 def read_token(token: str) -> dict:
     try:
@@ -13,3 +15,8 @@ def read_token(token: str) -> dict:
         print(e)
         return None
 
+
+class Token:
+    def __init__(self, raw: str = None, payload: dict = None):
+        self.raw = raw
+        self.payload = payload

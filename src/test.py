@@ -1,17 +1,20 @@
-from utils.jwt import read_token, create_token
-import datetime
+from tasks.email_server import send_email
+from dotenv import load_dotenv
 import os
+load_dotenv(".env")
 
-os.environ["JWT_SECRET_KEY"] = "helloworld"
-
-start = datetime.datetime.now()
-start += datetime.timedelta(minutes=10)
-print(start)
-payload = {
-    "id": "1",
-    "exp": start.timestamp()
+msg = {
+    'sender': 'your_email@example.com',
+    'recipients': ['recipient1@example.com', 'recipient2@example.com'],
+    'subject': 'Test Email',
+    'body': 'This is a test email sent using Python.'
 }
 
-token = create_token(payload)
-print(token)
-decoded = read_token(token)
+
+send_email(
+        msg,
+        os.getenv("MAIL_SERVER"),
+        int(os.getenv("MAIL_PORT")),
+        os.getenv("MAIL_USERNAME"),
+        os.getenv("MAIL_PASSWORD")
+    )

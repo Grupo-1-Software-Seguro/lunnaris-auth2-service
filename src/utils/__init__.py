@@ -15,8 +15,8 @@ def exception_to_json(ex: Exception):
         }
         code = ex.code
     else:
-        print(ex)
-        response.body = "Error en servidor"
+
+        response.body = str(ex)
     return response.model_dump(), code
 
 

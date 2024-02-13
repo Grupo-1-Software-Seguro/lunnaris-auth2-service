@@ -1,0 +1,1 @@
+celery -A 'tasks.config_tasks' worker --loglevel INFO -P solo

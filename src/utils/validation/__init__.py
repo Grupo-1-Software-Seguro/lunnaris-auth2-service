@@ -3,10 +3,11 @@ from pydantic import BaseModel
 from flask import request
 import inspect
 
+
 class Validator:
-    
+
     def validate(self, param: inspect.Parameter, _type, kwargs):
-        if param.annotation == inspect._empty and _type != None:
+        if param.annotation == inspect._empty and _type is not None:
             model = self.create_model(_type)
             kwargs[param.name] = model
         elif issubclass(param.annotation, BaseModel):
@@ -16,8 +17,9 @@ class Validator:
     def create_model(self, _type):
         pass
 
+
 class BodyValidator(Validator):
-    
+
     def create_model(self, class_: BaseModel):
         content_type = request.headers.get("Content-Type")
         if content_type:
@@ -25,10 +27,10 @@ class BodyValidator(Validator):
                 return class_(**request.get_json())
             elif "form-data" in content_type:
                 return class_(**request.form)
-            
+
 
 class QueryValidator(Validator):
-    
+
     def create_model(self, _type):
         args = self.get_args(request)
         return _type(**args)
@@ -42,7 +44,7 @@ class QueryValidator(Validator):
             elif len(values) > 1:
                 parsed_args[arg] = values
         return parsed_args
-    
+
 
 def process_single(response):
     if isinstance(response, BaseModel):
@@ -54,6 +56,7 @@ def process_single(response):
 def process_list(response_as_list):
     return [process_single(response) for response in response_as_list]
 
+
 def process_response(response):
     if isinstance(response, list):
         return process_list(response)
@@ -62,7 +65,7 @@ def process_response(response):
         return process_response(raw_response), status
     else:
         return process_single(response)
-    
+
 
 def validate_with_models(body=None, query=None, validate_response=True):
     def super_function(f):
@@ -80,6 +83,7 @@ def validate_with_models(body=None, query=None, validate_response=True):
                 return process_response(response)
             else:
                 return f(*args, **kwargs)
-            
+
         return decorated_function
+
     return super_function

@@ -1,17 +1,18 @@
-from services.auth_service_interface import IAuthService
-from dto.requests import LoginRequest, NewPasswordRequest, RegisterUserRequest, ResetPasswordRequest
-from dto.responses import LoginTokenResponse, NewPasswordResponse, RegisterUserResponse, ResetPasswordResponse
+from services.interface.auth_service_interface import IAuthService
+from dto.requests import AuthenticateRequest, AuthorizeRequest, LoginRequest, NewPasswordRequest, RegisterUserRequest, ResetPasswordRequest
+from dto.responses import AuthenticateResponse, AuthorizeResponse, LoginTokenResponse, NewPasswordResponse, RegisterUserResponse, ResetPasswordResponse
 from dao.interface import IAuthDAO
-from entities.auth_registry import AuthRegistry
-from services.token_service_interface import ITokenGenerator
-from services.mail_service_interface import IMailService
+from entities.auth_registry import AuthRegistry, UserType
+from services.interface.token_service_interface import ITokenGenerator
+from services.interface.mail_service_interface import IMailService
 from exceptions import *
 from utils import exception_on_value
 from utils.password import check_password, hash_password
+from lunnaris_pyinject import inject
 
 
 class AuthService(IAuthService):
-
+    @inject
     def __init__(self, dao: IAuthDAO, token_generator: ITokenGenerator, mail: IMailService) -> None:
         super().__init__()
         self.dao = dao
@@ -29,7 +30,7 @@ class AuthService(IAuthService):
             raise InvalidCredentials
 
         return LoginTokenResponse(
-            token=self.token_generator.create_login_token(auth_registry.userId, 10),
+            token=self.token_generator.create_login_token(auth_registry, 10),
             id=auth_registry.userId
         )
 
@@ -37,11 +38,14 @@ class AuthService(IAuthService):
         if self.dao.get_by_email(register_user_request.email):
             raise AlreadyRegistered(register_user_request.email)
 
+        if register_user_request.userType not in [member.value for member in UserType]:
+            raise UnknownRole(register_user_request.userType)
+
         auth_registry = AuthRegistry(
             userId=register_user_request.userId,
             email=register_user_request.email,
             password=hash_password(register_user_request.password),
-            fullName=register_user_request.fullName
+            userType=register_user_request.userType
         )
 
         return RegisterUserResponse(
@@ -69,3 +73,24 @@ class AuthService(IAuthService):
         return NewPasswordResponse(
             password_changed=self.dao.update(auth_registry)
         )
+
+    def authorize(self, authorize_request: AuthorizeRequest) -> AuthorizeResponse:
+        token = self.token_generator.read_token(authorize_request.token)
+        if not token:
+            raise InvalidToken
+        
+        if "type" not in token:
+            raise InvalidToken
+
+        role = self.dao.get_role(token["type"])
+        
+        if not role:
+            return AuthorizeResponse(authorized=False)
+        
+        if authorize_request.action in role.permissions:
+            return AuthorizeResponse(authorized=True)
+        
+        return AuthorizeResponse(authorized=False)
+    
+    def authenticate(self, authenticate_request: AuthenticateRequest) -> AuthenticateResponse:
+        return AuthenticateResponse(authenticated=True)

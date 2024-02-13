@@ -2,6 +2,9 @@ from pydantic import BaseModel
 
 
 class LoginRequest(BaseModel):
+    """
+    Login request using the email and the password
+    """
     email: str
     password: str
 
@@ -19,4 +22,13 @@ class RegisterUserRequest(BaseModel):
     userId: str
     email: str
     password: str
-    fullName: str
+    userType: int
+
+
+class AuthorizeRequest(BaseModel):
+    token: str
+    action: str
+
+
+class AuthenticateRequest(BaseModel):
+    token: str

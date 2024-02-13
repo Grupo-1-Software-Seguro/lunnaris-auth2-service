@@ -20,3 +20,11 @@ class IAuthService(ABC):
     @abstractmethod
     def register_user(self, register_user_request: RegisterUserRequest) -> RegisterUserResponse:
         pass
+    
+    @abstractmethod
+    def authorize(self, authorize_request: AuthorizeRequest) -> AuthorizeResponse:
+        pass
+
+    @abstractmethod
+    def authenticate(self, authenticate_request: AuthenticateRequest) -> AuthenticateResponse:
+        pass

@@ -22,3 +22,11 @@ class RegisterUserResponse(BaseModel):
 class ApiResponse(BaseModel):
     type: str
     body: Any
+
+
+class AuthorizeResponse(BaseModel):
+    authorized: bool
+
+
+class AuthenticateResponse(BaseModel):
+    authenticated: bool

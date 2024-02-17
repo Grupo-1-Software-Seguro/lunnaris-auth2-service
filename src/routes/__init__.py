@@ -1,59 +1,68 @@
-from flask import Blueprint, request
+from flask import Blueprint
 from services import IAuthService
 from dto.requests import *
-from dto.decorators import api_response
-from utils.validation import validate_with_models
-from utils.tokens.decorators import jwt_token
+from dto.responses import ApiResponse
 from lunnaris_pyinject import inject
-from config import Configuration
+from config import Configuration, model
 AuthRoutes = Blueprint("auth", __name__)
 
 
 @AuthRoutes.post("/register")
-@api_response()
-@validate_with_models()
 @inject
-def register(body: RegisterUserRequest, service: IAuthService = Configuration.service):
-    return service.register_user(body)
+def register(
+    body: RegisterUserRequest = model(RegisterUserRequest), 
+    service: IAuthService = Configuration.service):
+
+    response = service.register_user(body)
+    return ApiResponse(type="object", body=response).model_dump()
 
 
 @AuthRoutes.post("/login")
-@api_response()
-@validate_with_models()
 @inject
-def login(body: LoginRequest, service: IAuthService = Configuration.service):
-    return service.login(body), 201
+def login(
+    body: LoginRequest = model(LoginRequest), 
+    service: IAuthService = Configuration.service):
+
+    response = service.login(body)
+    return ApiResponse(type="object", body=response).model_dump()
 
 
 @AuthRoutes.post("/reset_password")
-@api_response()
-@validate_with_models()
 @inject
-@jwt_token
-def request_reset_password(body: ResetPasswordRequest, service: IAuthService = Configuration.service):
-    return service.request_password_reset(body)
+def request_reset_password(
+    body: ResetPasswordRequest = model(ResetPasswordRequest), 
+    service: IAuthService = Configuration.service):
+
+    response = service.request_password_reset(body)
+    return ApiResponse(type="object", body=response).model_dump()
 
 
 @AuthRoutes.put("/reset_password")
-@api_response()
-@validate_with_models()
 @inject
-@jwt_token
-def reset_password(body: NewPasswordRequest, service: IAuthService = Configuration.service):
-    return service.set_new_password(body)
+def reset_password(
+    body: NewPasswordRequest = model(NewPasswordRequest), 
+    service: IAuthService = Configuration.service):
+
+    response = service.set_new_password(body)
+    return ApiResponse(type="object", body=response).model_dump()
+
 
 
 @AuthRoutes.post("/authorize")
-@api_response()
-@validate_with_models()
 @inject
-def authorize(body: AuthorizeRequest, service: IAuthService = Configuration.service):
-    return service.authorize(body)
+def authorize(
+    body: AuthorizeRequest = model(AuthorizeRequest), 
+    service: IAuthService = Configuration.service):
+
+    response = service.authorize(body)
+    return ApiResponse(type="object", body=response).model_dump()
 
 
 @AuthRoutes.post("/authenticate")
-@api_response()
-@validate_with_models()
 @inject
-def authenticate(body: AuthenticateRequest, service: IAuthService = Configuration.service):
-    return service.authenticate(body)
+def authenticate(
+    body: AuthenticateRequest = model(AuthenticateRequest), 
+    service: IAuthService = Configuration.service):
+
+    response = service.authenticate(body)
+    return ApiResponse(type="object", body=response).model_dump()

@@ -58,9 +58,10 @@ class AuthService(IAuthService):
         if not auth_registry:
             raise NotRegistered
 
-        token = self.token_generator.create_recovery_token(auth_registry.userId, 10)
-        self.mail.send_reset_password_email(auth_registry.fullName, password_reset_request.email, token)
-        return ResetPasswordResponse(token=token)
+        recover_token = self.token_generator.create_recovery_token(auth_registry.userId, 10)
+        token = self.token_generator.create_login_token(auth_registry, 10)
+        self.mail.send_reset_password_email(recover_token, auth_registry.userId, token)
+        return ResetPasswordResponse(token=recover_token)
 
     def set_new_password(self, new_password_request: NewPasswordRequest) -> NewPasswordResponse:
         payload = self.token_generator.read_token(new_password_request.token)

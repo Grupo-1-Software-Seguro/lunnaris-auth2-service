@@ -11,12 +11,20 @@ def exception_to_json(ex: Exception):
     response = ApiResponse(type="error", body={})
     if isinstance(ex, HTTPException):
         response.body = {
-            "message": ex.description
+            "message": ex.description,
+            "status": ex.code
         }
         code = ex.code
     else:
 
-        response.body = str(ex)
+        with open("log.txt", "a", encoding="utf-8") as f:
+            f.write(f"{type(ex)}: {str(ex)}")
+        
+        response.body = {
+            "message": "Error interno",
+            "status": 500
+        }
+
     return response.model_dump(), code
 
 

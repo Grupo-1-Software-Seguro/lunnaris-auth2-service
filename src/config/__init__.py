@@ -1,6 +1,22 @@
+from typing import Type
 from lunnaris_pyinject import Dependency
+from pydantic import BaseModel
 import services
 import dao
+
+
+class ModelDependency(Dependency[BaseModel]):
+
+    def __init__(self, some_type: BaseModel, *args, **kwargs):
+        super().__init__(some_type, *args, **kwargs)
+
+    def inject(self) -> BaseModel:
+        from flask import request
+        self.kwargs.update(request.get_json())
+        return super().inject()
+    
+def model(some_type):
+    return ModelDependency(some_type)
 
 
 class Configuration:

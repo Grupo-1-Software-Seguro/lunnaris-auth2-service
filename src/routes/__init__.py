@@ -66,3 +66,14 @@ def authenticate(
 
     response = service.authenticate(body)
     return ApiResponse(type="object", body=response).model_dump()
+
+
+@AuthRoutes.post("/refresh_token")
+@inject
+def refresh_token(
+        body: RefreshTokenRequest = model(RefreshTokenRequest),
+        service: IAuthService = Configuration.service
+    ):
+
+    response = service.refresh_token(body)
+    return ApiResponse(type="object", body=response).model_dump(), 201

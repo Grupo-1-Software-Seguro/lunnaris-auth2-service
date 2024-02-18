@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 class LoginTokenResponse(BaseModel):
     token: str
+    refresh: str
     id: str
 
 
@@ -30,3 +31,7 @@ class AuthorizeResponse(BaseModel):
 
 class AuthenticateResponse(BaseModel):
     authenticated: bool
+
+
+class RefreshTokenResponse(BaseModel):
+    token: str

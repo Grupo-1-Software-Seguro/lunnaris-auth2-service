@@ -55,3 +55,7 @@ class AuthorizeRequest(BaseModel):
 
 class AuthenticateRequest(BaseModel):
     token: str
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str

@@ -1,3 +1,5 @@
+from dto.requests import RefreshTokenRequest
+from dto.responses import RefreshTokenResponse
 from services.interface.auth_service_interface import IAuthService
 from dto.requests import AuthenticateRequest, AuthorizeRequest, LoginRequest, NewPasswordRequest, RegisterUserRequest, ResetPasswordRequest
 from dto.responses import AuthenticateResponse, AuthorizeResponse, LoginTokenResponse, NewPasswordResponse, RegisterUserResponse, ResetPasswordResponse
@@ -31,8 +33,10 @@ class AuthService(IAuthService):
 
         return LoginTokenResponse(
             token=self.token_generator.create_login_token(auth_registry, 10),
-            id=auth_registry.userId
+            id=auth_registry.userId,
+            refresh=self.token_generator.create_refresh_token(auth_registry.userId)
         )
+    
 
     def register_user(self, register_user_request: RegisterUserRequest) -> RegisterUserResponse:
         if self.dao.get_by_email(register_user_request.email):
@@ -95,3 +99,19 @@ class AuthService(IAuthService):
     
     def authenticate(self, authenticate_request: AuthenticateRequest) -> AuthenticateResponse:
         return AuthenticateResponse(authenticated=True)
+    
+    def refresh_token(self, refresh_token_request: RefreshTokenRequest) -> RefreshTokenResponse:
+        payload = self.token_generator.read_token(refresh_token_request.refresh_token)
+        
+        if not payload:
+            raise InvalidToken
+        
+        audit_registry = self.dao.get_by_user_id(payload["id"])
+        
+        if not audit_registry:
+            raise NotRegistered
+        
+        token = self.token_generator.create_login_token(audit_registry)
+
+        return RefreshTokenResponse(token=token)
+        

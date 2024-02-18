@@ -15,3 +15,7 @@ class ITokenGenerator(ABC):
     @abstractmethod
     def read_token(self, token: str) -> dict:
         pass
+    
+    @abstractmethod
+    def create_refresh_token(self, user_id: str, days: int = 10) -> str:
+        pass

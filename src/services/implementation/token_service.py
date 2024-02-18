@@ -6,7 +6,7 @@ from utils.tokens import create_token, read_token
 
 class TokenGenerator(ITokenGenerator):
 
-    def create_login_token(self, credentials: AuthRegistry, minute_expiration: int) -> str:
+    def create_login_token(self, credentials: AuthRegistry, minute_expiration: int=10) -> str:
         today = datetime.datetime.now()
         delta = datetime.timedelta(minutes=minute_expiration)
         exp = today + delta
@@ -18,7 +18,7 @@ class TokenGenerator(ITokenGenerator):
 
         return create_token(payload)
 
-    def create_recovery_token(self, user_id: str, minute_expiration: int) -> str:
+    def create_recovery_token(self, user_id: str, minute_expiration: int=10) -> str:
         today = datetime.datetime.now()
         delta = datetime.timedelta(minutes=minute_expiration)
         exp = today + delta
@@ -31,4 +31,16 @@ class TokenGenerator(ITokenGenerator):
 
     def read_token(self, token: str) -> dict:
         return read_token(token)
+    
+    def create_refresh_token(self, user_id: str, days: int = 10) -> str:
+        today = datetime.datetime.now()
+        delta = datetime.timedelta(days=days)
+        exp = today + delta
+        payload = {
+            "id": user_id,
+            "token_type": "refresh",
+            "exp": exp.timestamp()
+        }
+
+        return create_token(payload)
 

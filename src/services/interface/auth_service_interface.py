@@ -28,3 +28,7 @@ class IAuthService(ABC):
     @abstractmethod
     def authenticate(self, authenticate_request: AuthenticateRequest) -> AuthenticateResponse:
         pass
+    
+    @abstractmethod
+    def refresh_token(self, refresh_token_request: RefreshTokenRequest) -> RefreshTokenResponse:
+        pass

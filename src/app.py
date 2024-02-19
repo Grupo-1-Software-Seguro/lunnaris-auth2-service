@@ -6,7 +6,7 @@ from flask_cors import CORS
 from routes import AuthRoutes
 from dotenv import load_dotenv
 from mongoengine import connect
-from utils import exception_to_json
+from exceptions.base_exceptions import exception_to_json
 
 def create_app():
     load_dotenv('.env')
@@ -14,7 +14,7 @@ def create_app():
     connect(db=os.getenv("MONGO_DB"), host=os.getenv("MONGO_URI"))
 
     _app = Flask("Auth service")
-    cors = CORS(_app)
+    cors = CORS(_app, origins="*")
 
     @_app.errorhandler(Exception)
     def handle_error(e):

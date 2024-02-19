@@ -6,35 +6,6 @@ import jwt
 
 HASH = "HS256"
 
-def exception_to_json(ex: Exception):
-    from pydantic import ValidationError
-    code = 500
-    response = ApiResponse(type="error", body={})
-    if isinstance(ex, HTTPException):
-        response.body = {
-            "message": ex.description,
-            "status": ex.code
-        }
-        code = ex.code
-    elif isinstance(ex, ValidationError):
-        code = 400
-        response.body = {
-            "message": str(ex.errors()[0]['msg']),
-            "status": 400
-        }
-
-    else:
-
-        with open("log.txt", "a", encoding="utf-8") as f:
-            f.write(f"{type(ex)}: {str(ex)}")
-        
-        response.body = {
-            "message": "Error interno",
-            "status": 500
-        }
-
-    return response.model_dump(), code
-
 
 def exception_on_value(value, comparison, exception):
     if value == comparison:

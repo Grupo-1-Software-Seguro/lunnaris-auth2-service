@@ -106,6 +106,9 @@ class AuthService(IAuthService):
         if not payload:
             raise InvalidToken
         
+        if "id" not in payload or "token_type" not in payload:
+            raise InvalidToken
+        
         audit_registry = self.dao.get_by_user_id(payload["id"])
         
         if not audit_registry:

@@ -31,9 +31,7 @@ class AlreadyRegistered(ServiceException):
     description = "Ya existe un registro"
 
     def __init__(self, email) -> None:
-        super().__init__()
-        self.code = 400
-        self.description = f"Ya existe un registro para {email}"
+        super().__init__(description=f"Ya existe un registro para {email}")
 
 
 class NotRegistered(ServiceException):
@@ -59,5 +57,4 @@ class UnknownRole(ServiceException):
     description = "Error en el rol"
 
     def __init__(self, role) -> None:
-        super().__init__()
-        self.description = f"Error en el rol: {role}"
+        super().__init__(description=f"Clave de rol desconocida: {role}")

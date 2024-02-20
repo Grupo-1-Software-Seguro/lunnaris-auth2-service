@@ -1,53 +1,58 @@
 class ServiceException(Exception):
-    code: int
-    description: str
-    error_code: str    
+    code: int = 500
+    description: str = "Service error"
+    error_code: str = "service_error"
 
+    def __init__(self, description=None, error_code=None, code=None) -> None:
+        super().__init__()
+        if description:
+            self.description = description
+
+        if error_code:
+            self.error_code = error_code
+
+        if code:
+            self.code = code    
+
+    def __str__(self) -> str:
+        return self.description
 
 def exception_to_json(ex):
     from pydantic import ValidationError
-    from werkzeug.exceptions import HTTPException
     code = 500
     response = {
         "type": "error",
-        "body": {}
+        "body": {
+            "message": "Error en el servidor",
+            "status": code,
+            "error_code": "server_error"
+        }
     }
 
-    if isinstance(ex, ServiceException):
-        response["body"] = {
-            "message": ex.description,
-            "status": ex.code,
-            "error_code": ex.error_code
-        }
-        code = ex.code
+    if hasattr(ex, "code"):
+        if ex.code is not None:
+            response["body"]["status"] = ex.code
+            code = ex.code
+    
+    if hasattr(ex, "message"):
+        if ex.message:
+            response["body"]["message"] = ex.message
+    
+    if hasattr(ex, "description"):
+        if ex.description:
+            response["body"]["message"] = ex.description
+    
+    if hasattr(ex, "error_code"):
+        if ex.error_code:
+            response["body"]["error_code"] = ex.error_code
 
-    elif isinstance(ex, HTTPException):
-        response["body"] = {
-            "message": ex.description,
-            "status": ex.code,
-            "error_code": "http"
-        }
-        code = ex.code
-
-    elif isinstance(ex, ValidationError):
+    if isinstance(ex, ValidationError):
 
         code = 400
         response["body"] = {
             "message": str(ex.errors()[0]['msg']),
             "status": 400,
             "error_code": "validation"
-        }
-
-    else:
-
-        with open("log.txt", "a") as f:
-            f.write("\n===\n")
-            f.write(f"{type(ex)}: {str(ex)}")
-
-        response["body"] = {
-            "message": "Error en el servidor",
-            "status": code,
-            "error_code": "server_error"
         }
 
     return response, code

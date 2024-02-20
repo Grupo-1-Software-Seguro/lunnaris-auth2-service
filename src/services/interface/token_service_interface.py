@@ -5,7 +5,7 @@ from entities.auth_registry import AuthRegistry
 class ITokenGenerator(ABC):
 
     @abstractmethod
-    def create_login_token(self, credentials: AuthRegistry, minute_expiration: int) -> str:
+    def create_login_token(self, credentials: AuthRegistry, minute_expiration: int = 10) -> str:
         pass
 
     @abstractmethod

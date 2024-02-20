@@ -14,9 +14,3 @@ def read_token(token: str) -> dict:
     except jwt.PyJWTError as e:
         print(e)
         return None
-
-
-class Token:
-    def __init__(self, raw: str = None, payload: dict = None):
-        self.raw = raw
-        self.payload = payload

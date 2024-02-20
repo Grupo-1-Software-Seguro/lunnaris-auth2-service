@@ -5,9 +5,9 @@ from tasks.config_tasks import celery_app
 class QueuedMailService(IMailService):
 
     def send_reset_password_email(self, recover_token: str, user_id: str, token: str):
-        reset_link = os.getenv("RECOVER_URL") + recover_token
+
         args = {
-            "reset_link": reset_link,
+            "reset_token": recover_token,
             "user_id": user_id,
             "token": token
         }

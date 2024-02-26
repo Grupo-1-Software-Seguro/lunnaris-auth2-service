@@ -1,5 +1,5 @@
 from lunnaris_pyinject import Dependency
-from .models import M
+from .models import M, TokenDependency
 import services
 import dao
 

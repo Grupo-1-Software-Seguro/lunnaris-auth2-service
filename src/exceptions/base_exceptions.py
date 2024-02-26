@@ -1,4 +1,12 @@
 class ServiceException(Exception):
+    """
+    Base class for service exception, contains the following attributes:
+    :param description, human readable string for the error
+    :param error_code, machine readable string for the error
+    :param code, int number to determine the status for the service failure
+    """
+
+
     code: int = 500
     description: str = "Service error"
     error_code: str = "service_error"
@@ -18,6 +26,24 @@ class ServiceException(Exception):
         return self.description
 
 def exception_to_json(ex):
+    """
+    Transforms an exception to json so it can be send as an error to 
+    the client. It follows the next structure 
+    
+    {
+        "type": {"type":"string"}, 
+        "body": {
+            "type":"object", 
+            "fields": {
+                "message": "string",
+                "status": "int",
+                "error_code": "string"   
+            }
+        }   
+    }
+    
+    :param ex, Exception subclass
+    """
     from pydantic import ValidationError
     code = 500
     response = {

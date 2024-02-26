@@ -1,0 +1,1 @@
+from .config_tasks import celery_app

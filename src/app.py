@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, Response
 import os
 
 from flask_cors import CORS
@@ -16,12 +16,46 @@ def create_app():
     _app = Flask("Auth service")
     cors = CORS(_app, origins=os.getenv("FRONT_URL"))
 
+    @_app.before_request
+    def before_request():
+        from flask import request
+        import secrets
+        request.log = {
+            "log_id": secrets.token_hex(8),
+            "method": request.method,
+            "path": request.path,
+            "ip": request.remote_addr
+        }
+
+
     @_app.errorhandler(Exception)
     def handle_error(e):
         from exceptions.base_exceptions import exception_to_json
-        from utils.logger import log_to_file
-        log_to_file(f"{type(e)}: {e}")
-        return exception_to_json(e)
+        from flask import request
+        import traceback
+
+        error, code = exception_to_json(e)
+        if hasattr(request, "log"):
+            stacktrace_str = traceback.format_exception(type(e), e, e.__traceback__)
+            request.log["traceback"] = "".join(stacktrace_str)
+
+        return error, code
+
+    @_app.after_request
+    def after_request(response: Response):
+        import tasks
+        from flask import request
+        from datetime import datetime
+        if hasattr(request, "log"):
+            request.log["response"] = bytes(response.response[0]).decode("utf-8")
+            request.log["status"] = response.status
+            tasks.celery_app.send_task("logs.add_log",kwargs={
+                "service": "auth",
+                "timestamp": datetime.now().timestamp(),
+                "log": request.log
+            })
+
+        return response
 
     _app.register_blueprint(AuthRoutes, url_prefix="/api/auth")
     return _app

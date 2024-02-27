@@ -112,7 +112,7 @@ class AuthService(IAuthService):
         user_id = payload.get("id")
         token_type = payload.get("token_type")
 
-        if not payload or token_type != "refresh_token":
+        if not user_id or token_type != "refresh_token":
             raise InvalidToken
         
         audit_registry = self.dao.get_by_user_id(user_id)

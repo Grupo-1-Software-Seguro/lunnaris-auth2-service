@@ -105,14 +105,18 @@ class AuthService(IAuthService):
     
     def refresh_token(self, refresh_token_request: RefreshTokenRequest) -> RefreshTokenResponse:
         payload = self.token_handler.read_token(refresh_token_request.refresh_token)
-
+        
         if not payload:
             raise InvalidToken
         
         user_id = payload.get("id")
+
+        if user_id is None:
+            raise InvalidToken
+        
         token_type = payload.get("token_type")
 
-        if not user_id or token_type != "refresh_token":
+        if token_type != "refresh":
             raise InvalidToken
         
         audit_registry = self.dao.get_by_user_id(user_id)

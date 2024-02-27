@@ -1,11 +1,10 @@
 from flask import Flask, Response
-import os
-
 from flask_cors import CORS
-
 from routes import AuthRoutes
 from dotenv import load_dotenv
 from mongoengine import connect
+
+import os
 
 
 def create_app():
@@ -64,4 +63,4 @@ def create_app():
 app = create_app()
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5020)
+    app.run(debug=True, port=5020, host="0.0.0.0")

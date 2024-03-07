@@ -48,11 +48,11 @@ def create_app():
         if hasattr(request, "log"):
             request.log["response"] = bytes(response.response[0]).decode("utf-8")
             request.log["status"] = response.status
-            tasks.celery_app.send_task("logs.add_log",kwargs={
-                "service": "auth",
-                "timestamp": datetime.now().timestamp(),
-                "log": request.log
-            })
+            # tasks.celery_app.send_task("logs.add_log",kwargs={
+            #     "service": "auth",
+            #     "timestamp": datetime.now().timestamp(),
+            #     "log": request.log
+            # })
 
         return response
 

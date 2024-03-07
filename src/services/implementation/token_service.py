@@ -6,7 +6,7 @@ from utils.tokens import create_token, read_token
 
 class TokenGenerator(ITokenGenerator):
 
-    def create_login_token(self, credentials: AuthRegistry, minute_expiration: int=10) -> str:
+    def create_login_token(self, credentials: AuthRegistry, minute_expiration: int=120) -> str:
         today = datetime.datetime.now()
         delta = datetime.timedelta(minutes=minute_expiration)
         exp = today + delta
